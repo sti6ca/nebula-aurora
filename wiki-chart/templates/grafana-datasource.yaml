@@ -1,0 +1,20 @@
+{{- if .Values.grafana.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wiki-chart.fullname" . }}-grafana-datasource
+  labels:
+    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+data:
+  datasource.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://{{ include "wiki-chart.fullname" . }}-prometheus:{{ .Values.prometheus.service.port }}
+        isDefault: true
+        editable: true
+{{- end }}

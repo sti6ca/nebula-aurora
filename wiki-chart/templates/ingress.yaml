@@ -1,0 +1,62 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "wiki-chart.fullname" . }}-ingress
+  labels:
+    {{- include "wiki-chart.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.hosts }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          # Grafana routes - must come before FastAPI routes
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "wiki-chart.fullname" $ }}-grafana
+                port:
+                  number: {{ $.Values.grafana.service.port }}
+          # FastAPI routes - specific paths first
+          - path: /users
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "wiki-chart.fullname" $ }}-fastapi
+                port:
+                  number: {{ $.Values.fastapi.service.port }}
+          - path: /posts
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "wiki-chart.fullname" $ }}-fastapi
+                port:
+                  number: {{ $.Values.fastapi.service.port }}
+          - path: /metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "wiki-chart.fullname" $ }}-fastapi
+                port:
+                  number: {{ $.Values.fastapi.service.port }}
+          # Root path last (matches everything else)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "wiki-chart.fullname" $ }}-fastapi
+                port:
+                  number: {{ $.Values.fastapi.service.port }}
+    {{- end }}
+  {{- end }}
+{{- end }}
