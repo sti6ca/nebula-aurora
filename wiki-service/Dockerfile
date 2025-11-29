@@ -28,6 +28,7 @@ COPY app/ ./app
 
 # Expose port
 EXPOSE 8000
+ENV DATABASE_URL="postgresql+asyncpg://wiki_user:wiki_password@wiki-postgres:5432/wiki_db"
 
 # Start app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
