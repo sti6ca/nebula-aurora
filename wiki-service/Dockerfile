@@ -14,11 +14,17 @@ RUN apt-get update && \
     && rm -rf /tmp/* \
     && rm -rf /var/tmp/*
 
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy deps
+COPY pyproject.toml uv.lock .
+
 # Install deps
-RUN pip install .
+RUN uv pip install --system .
 
 # Copy app code
-COPY . .
+COPY app/ ./app
 
 # Expose port
 EXPOSE 8000
