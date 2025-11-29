@@ -74,3 +74,5 @@ spec:
       - name: dashboard-data
         configMap:
           name: {{ include "wiki-chart.fullname" . }}-grafana-dashboard
+{{- end }}
+          

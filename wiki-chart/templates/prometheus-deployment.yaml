@@ -57,3 +57,4 @@ spec:
           name: {{ include "wiki-chart.fullname" . }}-prometheus-config
       - name: storage
         emptyDir: {}
+{{- end }}
