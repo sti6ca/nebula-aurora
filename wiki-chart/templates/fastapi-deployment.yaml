@@ -23,7 +23,7 @@ spec:
         imagePullPolicy: {{ .Values.fastapi.imagePullPolicy | default "IfNotPresent" }} #IfNotPresent
         ports:
         - name: http
-          containerPort: {{ .Values.fastapi.containerPort }} #8000
+          containerPort: {{ .Values.fastapi.containerPort }} # 8000
           protocol: TCP
         env:
         - name: DATABASE_URL
