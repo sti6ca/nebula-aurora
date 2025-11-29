@@ -3,12 +3,9 @@ from sqlalchemy.orm import DeclarativeBase
 import os
 
 # Get Database URL from environment variable
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://wiki_user:wiki_password@localhost:5432/wiki_db"
-)
-#if not DATABASE_URL:
-#    raise ValueError("DATABASE_URL environment variable is not set.")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set.")
 
 # Create async engine
 engine = create_async_engine(
