@@ -1,6 +1,6 @@
 # FastAPI app config
 fastapi:
-  image_name: your-registry/wiki:latest
+  image_name: tatosbeer/wiki:latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   containerPort: 8000
