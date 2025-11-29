@@ -18,7 +18,7 @@ RUN apt-get update && \
 RUN pip install --no-cache-dir uv
 
 # Copy deps
-COPY pyproject.toml uv.lock .
+COPY pyproject.toml uv.lock ./
 
 # Install deps
 RUN uv pip install --system .
