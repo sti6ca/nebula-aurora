@@ -2,10 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-from database import engine, get_db, Base
-from models import User, Post
-from schemas import UserCreate, UserResponse, PostCreate, PostResponse
-from metrics import users_created_total, posts_created_total
+from app.database import engine, get_db, Base
+from app.models import User, Post
+from app.schemas import UserCreate, UserResponse, PostCreate, PostResponse
+from app.metrics import users_created_total, posts_created_total
 
 app = FastAPI(title="User and Post API")
 
