@@ -246,15 +246,13 @@ docker network create nebula-net
 **start postgres on that network**
 
 ```bash
-docker run -d --name nebula-postgres --network nebula-net \
-  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula \
-  postgres:16
+docker run -d --name nebula-postgres --network nebula-net -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula postgres:15.5
 ```
 
 **run your fastapi container on same network**
 
 ```bash
-docker run -it --rm --name wiki --network nebula-net -p 8000:8000 fastapi:local
+docker run -it --rm --name wiki --network nebula-net -e DATABASE_URL="postgresql+asyncpg://postgres:postgres@nebula-postgres:5432/nebula" -p 8000:8000 fastapi:local
 ```
 
 ## K8s steps
