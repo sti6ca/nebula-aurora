@@ -60,7 +60,6 @@ Create a new user.
 }
 ```
 
-
 ### POST /posts
 
 Create a new post under a given user.
