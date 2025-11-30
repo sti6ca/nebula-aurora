@@ -31,7 +31,7 @@ EXPOSE 8000
 ENV DATABASE_URL="postgresql+asyncpg://postgres:postgres@nebula-postgres:5432/nebula"
 
 # Start app
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 
 
