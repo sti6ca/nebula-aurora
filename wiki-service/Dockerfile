@@ -24,7 +24,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv pip install --system .
 
 # Copy app code
-COPY app/ ./app
+COPY . ./app
 
 # Expose port
 EXPOSE 8000
