@@ -1,21 +1,2 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
-.venv
-
-# Database
-*.db
-*.db-journal
-
-# IDE
-.vscode/
-.idea/
-
-# Env variables
-.env
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*

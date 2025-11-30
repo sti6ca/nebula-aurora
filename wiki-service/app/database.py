@@ -3,9 +3,11 @@ from sqlalchemy.orm import DeclarativeBase
 import os
 
 # Get Database URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is not set.")
+#DATABASE_URL = os.getenv("DATABASE_URL")
+#if not DATABASE_URL:
+#    raise ValueError("DATABASE_URL environment variable is not set.")
+# SQLite database URL (using aiosqlite for async support)
+DATABASE_URL = "sqlite+aiosqlite:///./app.db"
 
 # Create async engine
 engine = create_async_engine(
