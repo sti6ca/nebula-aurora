@@ -234,7 +234,7 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 ## Running application as docker container
 
 ```bash
-cd wiki-service && docker build -t fastapi:latest .
+cd wiki-service && docker build -t fastapi:local .
 ```
 
 **create a network**
@@ -254,7 +254,7 @@ docker run -d --name nebula-postgres --network nebula-net \
 **run your fastapi container on same network**
 
 ```bash
-docker run -it --rm --name wiki --network nebula-net -p 8000:8000 fastapi:latest
+docker run -it --rm --name wiki --network nebula-net -p 8000:8000 fastapi:local
 ```
 
 ## K8s steps
