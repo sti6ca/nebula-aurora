@@ -247,7 +247,7 @@ docker network create nebula-net
 
 ```bash
 docker run -d --name nebula-postgres --network nebula-net \
-  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula \
+  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula-postgres \
   postgres:16
 ```
 
