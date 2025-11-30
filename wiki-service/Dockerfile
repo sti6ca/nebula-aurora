@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 
 # Set working dir
-WORKDIR /
+WORKDIR /app
 
 # Install system deps for building Python pkgs
 RUN apt-get update && \
@@ -24,7 +24,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv pip install --system .
 
 # Copy app code
-COPY . .
+COPY app/ .
 
 # Expose port
 EXPOSE 8000
