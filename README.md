@@ -136,16 +136,16 @@ Prometheus text-based exposition format
 Create a user:
 
 ```bash
-curl -X POST "http://localhost:8000/users"
--H "Content-Type: application/json"
+curl -X POST "http://localhost:8000/users" \
+-H "Content-Type: application/json" \
 -d '{"name": "John Doe"}'
 ```
 
 Create a post:
 
 ```bash
-curl -X POST "http://localhost:8000/posts"
--H "Content-Type: application/json"
+curl -X POST "http://localhost:8000/posts" \
+-H "Content-Type: application/json" \
 -d '{"user_id": 1, "content": "Hello, World!"}'
 ```
 
@@ -173,7 +173,7 @@ The service exposes Prometheus metrics at the `/metrics` endpoint. These metrics
 
 **Available Metrics:**
 
-```json
+```bash
 - `users_created_total` — Total count of users created since the service started
 - `posts_created_total` — Total count of posts created since the service started
 ```
