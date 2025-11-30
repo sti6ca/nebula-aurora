@@ -204,9 +204,79 @@ scrape_configs:
 ## Database
 
 The service uses SQLite by default (`app.db` file).
-
 To switch to PostgreSQL or another database:
 
 1. Update `DATABASE_URL` in `app/database.py`
 2. Install the appropriate database driver (e.g., `asyncpg` for PostgreSQL)
 3. Update `requirements.txt` accordingly
+
+
+### Start a local Postgres for testing
+
+```bash
+docker run --name nebula-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula -p 5432:5432 -d postgres:16
+```
+
+### Export DB URL for your app
+
+```bash
+export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/nebula"
+```
+
+### Install deps and run
+
+```bash
+pip install . 
+uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+```
+
+
+## Running application as docker container
+
+```bash
+cd wiki-service && docker build -t fastapi:latest .
+```
+
+**create a network**
+
+```bash
+docker network create nebula-net
+```
+
+**start postgres on that network**
+
+```bash
+docker run -d --name nebula-postgres --network nebula-net \
+  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula \
+  postgres:16
+```
+
+**run your fastapi container on same network**
+
+```bash
+docker run -it --rm --name wiki --network nebula-net -p 8000:8000 fastapi:latest
+```
+
+## K8s steps
+
+```bash
+kubectl get configmaps -o custom-columns=NAME:.metadata.name,LABELS:.metadata.labels --no-headers | grep grafana-dashboards
+```
+
+```bash
+kubectl get configmap hello-grafana-dashboards -o yaml
+```
+
+```bash
+kubectl get pods -l app.kubernetes.io/name=grafana -o yaml
+```
+
+```bash
+kubectl get pod hello-grafana-6cd4b4b6bb-q7vnd -o jsonpath='{.spec.containers[*].name}{"\n"}'
+```
+
+```yaml
+
+name: grafana-sc-dashboard
+name: grafana-sc-datasources
+```
