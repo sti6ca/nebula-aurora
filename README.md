@@ -120,14 +120,14 @@ Prometheus metrics endpoint for monitoring.
 
 **Exposed Metrics:**
 
-```json
+```bash
 - `users_created_total` — Counter tracking the total number of users created
 - `posts_created_total` — Counter tracking the total number of posts created
 ```
 
 **Response:**  
 
-```json
+```bash
 Prometheus text-based exposition format
 ```
 
