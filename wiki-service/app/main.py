@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from app.database import engine, get_db, Base
-from app.models import User, Post
-from app.schemas import UserCreate, UserResponse, PostCreate, PostResponse
-from app.metrics import users_created_total, posts_created_total
+from app.models import User, Post #adapt for containerizing
+from app.schemas import UserCreate, UserResponse, PostCreate, PostResponse #adapt for containerizing
+from app.metrics import users_created_total, posts_created_total #adapt for containerizing
 
 app = FastAPI(title="User and Post API")
 
