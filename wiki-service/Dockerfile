@@ -14,11 +14,14 @@ RUN apt-get update && \
     && rm -rf /tmp/* \
     && rm -rf /var/tmp/*
 
+# Install uv
+RUN pip install --no-cache-dir uv
+
 # Copy deps
 COPY pyproject.toml uv.lock ./
 
-# Install deps
-RUN pip3 install .
+# Install deps using uv
+RUN uv pip install --system .
 
 # Copy app code
 COPY . .
