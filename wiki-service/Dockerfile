@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 
 # Set working dir
-WORKDIR /app
+WORKDIR /
 
 # Install system deps for building Python pkgs
 RUN apt-get update && \
