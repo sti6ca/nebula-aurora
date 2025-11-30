@@ -14,14 +14,11 @@ RUN apt-get update && \
     && rm -rf /tmp/* \
     && rm -rf /var/tmp/*
 
-# Install uv
-RUN pip install --no-cache-dir uv
-
 # Copy deps
 COPY pyproject.toml uv.lock ./
 
 # Install deps
-RUN uv pip install --system .
+RUN pip3 install .
 
 # Copy app code
 COPY . .
@@ -31,6 +28,7 @@ EXPOSE 8000
 ENV DATABASE_URL="postgresql+asyncpg://postgres:postgress@nebula-postgres:5432/nebula"
 
 # Start app
-CMD ["python", "-m", "uvicorn", "app.main:app", "--reload"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+
 
 

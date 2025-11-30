@@ -226,8 +226,8 @@ export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/nebul
 ### Install deps and run
 
 ```bash
-pip install . 
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+pip3 install -r requirements.txt 
+python -m uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 ```
 
 
