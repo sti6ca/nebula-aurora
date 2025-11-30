@@ -1,6 +1,6 @@
 # FastAPI app config
 fastapi:
-  image_name: your-registry/wiki:latest
+  image_name: tatosbeer/wiki:latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   containerPort: 8000
@@ -31,12 +31,12 @@ postgresql:
       enabled: true
       size: 1Gi
     resources:
-      requests:
-        cpu: "250m"
-        memory: "256Mi"
       limits:
         cpu: "500m"
         memory: "512Mi"
+      requests:
+        cpu: "250m"
+        memory: "256Mi"        
   service:
     type: ClusterIP
     port: 5432
@@ -60,12 +60,12 @@ prometheus:
     type: ClusterIP
     port: 9090
   resources:
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
     limits:
       cpu: "200m"
       memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"      
   storage:
     size: 1Gi
 
@@ -81,12 +81,12 @@ grafana:
     type: ClusterIP
     port: 3000
   resources:
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
     limits:
       cpu: "200m"
       memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
   dashboard:
     id: creation-dashboard-678
     path: /d/creation-dashboard-678/creation

@@ -3,7 +3,7 @@ name: wiki-chart
 description: Helm chart for Wikipedia-like FastAPI PostgreSQL, Prometheus and Grafana
 type: application
 version: 0.1.0
-appVersion: "1.0.0"
+appVersion: "0.1.0"
 dependencies:
   - name: postgresql
     version: 15.5.0
