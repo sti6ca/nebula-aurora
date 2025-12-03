@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "wiki-chart.fullname" . }}-fastapi
+  name: wiki-fastapi
   labels:
-    {{- include "wiki-chart.labels" . | nindent 4 }}
-    app.kubernetes.io/component: fastapi
+#    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wiki-fastapi
 spec:
   replicas: {{ .Values.fastapi.replicaCount }} #1
   selector:
     matchLabels:
-      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: fastapi
+#      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: wiki-fastapi
   template:
     metadata:
       labels:
-        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: fastapi
+#        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: wiki-fastapi
     spec:
       containers:
       - name: fastapi
@@ -29,8 +29,23 @@ spec:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: {{ include "wiki-chart.fullname" . }}-db-secret
+              name: wiki-db-secret
               key: database-url
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: wiki_user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: wiki_password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: wiki_db
         resources:
           {{- toYaml .Values.fastapi.resources | nindent 10 }} #requests: cpu: "250m", memory: "256Mi" limits: cpu: "1", memory: "1Gi"
         livenessProbe:

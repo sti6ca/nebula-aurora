@@ -214,7 +214,7 @@ To switch to PostgreSQL or another database:
 ### Start a local Postgres for testing
 
 ```bash
-docker run --name nebula-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula -p 5432:5432 -d postgres:16
+docker run --name nebula-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula -p 5432:5432 -d postgres:15.5
 ```
 
 ### Export DB URL for your app
@@ -254,6 +254,37 @@ docker run -d --name nebula-postgres --network nebula-net -e POSTGRES_USER=postg
 ```bash
 docker run -it --rm --name wiki --network nebula-net -e DATABASE_URL="postgresql+asyncpg://postgres:postgres@nebula-postgres:5432/nebula" -p 8000:8000 fastapi:local
 ```
+
+## Helm steps
+
+```bash
+helm repo add my-repo https://charts.bitnami.com/bitnami
+```
+
+```bash
+helm install postgresql-15.5.0 my-repo/postgresql
+```
+
+**To get the password for "postgres" run:**
+
+```bash
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql-15-5-0 -o jsonpath="{.data.postgres-password}" | base64 -d)
+```
+
+**To connect to your database run the following command:**
+
+```bash
+kubectl run postgresql-15-5-0-client --rm --tty -i --restart='Never' --namespace default --image registry-1.docker.io/bitnami/postgresql:latest --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+ --command -- psql --host postgresql-15-5-0 -U postgres -d postgres -p 5432
+```
+
+**To connect to your database from outside the cluster execute the following commands:**
+
+```bash
+kubectl port-forward --namespace default svc/postgresql-15-5-0 5432:5432 &     PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+```
+
+
 
 ## K8s steps
 

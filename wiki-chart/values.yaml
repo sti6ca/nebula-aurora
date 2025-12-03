@@ -1,6 +1,6 @@
 # FastAPI app config
 fastapi:
-  image_name: tatosbeer/wiki:latest
+  image_name: <your-registry>/wiki:latest
   imagePullPolicy: IfNotPresent
   replicaCount: 1
   containerPort: 8000
@@ -22,10 +22,10 @@ postgresql:
     repository: bitnami/postgresql
     tag: "latest"
   auth:
-    postgresPassword: wiki_postgres_password
-    username: wiki_user
-    password: wiki_password
-    database: wiki_db
+    postgresPassword: "postgress"
+    user: postgress
+    password: postgress
+    database: nebula
   primary:
     persistence:
       enabled: true
@@ -44,11 +44,12 @@ postgresql:
 # FastAPI DB connection
 # Note: PostgreSQL name will be <release-name>-postgresql
 database:
-  host: ""  # <release-name>-postgresql in template
+  connectionString: "postgresql+asyncpg://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.db }}"
+  host: nebula-postgres  # <release-name>-postgresql in template
   port: 5432
-  user: wiki_user
-  password: wiki_password
-  database: wiki_db
+  user: postgres
+  password: postgres
+  database: nebula
 
 # Prometheus config
 prometheus:

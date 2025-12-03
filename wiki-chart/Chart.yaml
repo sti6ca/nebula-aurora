@@ -1,6 +1,6 @@
 apiVersion: v2
 name: wiki-chart
-description: Helm chart for Wikipedia-like FastAPI PostgreSQL, Prometheus and Grafana
+description: Helm chart for Wiki-like FastAPI PostgreSQL, Prometheus and Grafana
 type: application
 version: 0.1.0
 appVersion: "0.1.0"

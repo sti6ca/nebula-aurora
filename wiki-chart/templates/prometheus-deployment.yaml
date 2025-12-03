@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "wiki-chart.fullname" . }}-prometheus
+  name: wiki-prometheus
   labels:
-    {{- include "wiki-chart.labels" . | nindent 4 }}
-    app.kubernetes.io/component: prometheus
+#    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wiki-prometheus
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: prometheus
+#      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: wiki-prometheus
   template:
     metadata:
       labels:
-        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: prometheus
+#        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: wiki-prometheus
     spec:
       containers:
       - name: prometheus
@@ -54,7 +54,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: {{ include "wiki-chart.fullname" . }}-prometheus-config
+          name: wiki-prometheus-config
       - name: storage
         emptyDir: {}
 {{- end }}

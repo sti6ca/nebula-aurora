@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "wiki-chart.fullname" . }}-grafana
+  name: wiki-grafana
   labels:
-    {{- include "wiki-chart.labels" . | nindent 4 }}
-    app.kubernetes.io/component: grafana
+#    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wiki-grafana
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: grafana
+#      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: wiki-grafana
   template:
     metadata:
       labels:
-        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: grafana
+#        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: wiki-grafana
     spec:
       containers:
       - name: grafana
@@ -67,12 +67,12 @@ spec:
         emptyDir: {}
       - name: datasource-config
         configMap:
-          name: {{ include "wiki-chart.fullname" . }}-grafana-datasource
+          name: wiki-grafana-datasource
       - name: dashboard-config
         configMap:
-          name: {{ include "wiki-chart.fullname" . }}-grafana-dashboard-config
+          name: wiki-grafana-dashboard-config
       - name: dashboard-data
         configMap:
-          name: {{ include "wiki-chart.fullname" . }}-grafana-dashboard
+          name: wiki-grafana-dashboard
 {{- end }}
           
