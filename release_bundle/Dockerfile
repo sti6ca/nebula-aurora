@@ -1,18 +1,12 @@
 FROM docker:dind
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Install utilities: bash, curl, ca-certificates, git, nginx, python3
 RUN apk add --no-cache \
     curl \
     bash \
     kubectl \
-    ca-certificates \
     python3 \
     py3-pip \
-    nginx-openrc \
-    openrc \
-    sshpass \
     git
 
 # install helm
