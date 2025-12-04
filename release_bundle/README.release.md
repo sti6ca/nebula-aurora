@@ -4,12 +4,14 @@ This bundle contains the project files and a Dockerfile to run a full k3d cluste
 
 Structure:
 
+```bash
 /
 | _wiki-service/
 | _wiki-chart/
 | Dockerfile
 | entrypoint.sh
 | nginx.conf.template
+```
 
 Build and run (requires privileged mode to run Docker-in-Docker):
 
