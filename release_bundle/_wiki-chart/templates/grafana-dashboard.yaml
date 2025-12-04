@@ -1,0 +1,70 @@
+{{- if .Values.grafana.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wiki-grafana-dashboard
+  labels:
+#    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wiki-grafana
+data:
+  creation-dashboard-678.json: |
+    {
+      "id": null,
+      "uid": "creation-dashboard-678",
+      "title": "Creation Dashboard",
+      "tags": ["wiki", "fastapi"],
+      "timezone": "browser",
+      "schemaVersion": 16,
+      "version": 0,
+      "refresh": "10s",
+      "panels": [
+        {
+          "id": 1,
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "type": "timeseries",
+          "title": "Users Created",
+          "targets": [
+            {
+              "expr": "users_created_total",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            }
+          }
+        },
+        {
+          "id": 2,
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "type": "timeseries",
+          "title": "Posts Created",
+          "targets": [
+            {
+              "expr": "posts_created_total",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            }
+          }
+        }
+      ],
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "timepicker": {}
+    }
+{{- end }}

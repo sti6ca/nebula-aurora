@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wiki-fastapi
+  labels:
+#    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wiki-fastapi
+spec:
+  replicas: {{ .Values.fastapi.replicaCount }} #1
+  selector:
+    matchLabels:
+#      {{- include "wiki-chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: wiki-fastapi
+  template:
+    metadata:
+      labels:
+#        {{- include "wiki-chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: wiki-fastapi
+    spec:
+      containers:
+      - name: fastapi
+        image: {{ .Values.fastapi.image_name }} #your-registry/wiki:latest
+        imagePullPolicy: {{ .Values.fastapi.imagePullPolicy | default "IfNotPresent" }} #IfNotPresent
+        ports:
+        - name: http
+          containerPort: {{ .Values.fastapi.containerPort }} # 8000
+          protocol: TCP
+        # Use the generated secret for the database URL (keeps credentials out of plain manifests)
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: database-url
+        # Optional individual secrets if your app reads separate env vars
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: wiki_user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: wiki_password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: wiki-db-secret
+              key: wiki_db
+        resources:
+          {{- toYaml .Values.fastapi.resources | nindent 10 }} #requests: cpu: "250m", memory: "256Mi" limits: cpu: "1", memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 5

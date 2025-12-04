@@ -1,0 +1,21 @@
+{{- if .Values.prometheus.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wiki-prometheus-config
+  labels:
+#    {{- include "wiki-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/component: wiki-prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: 'fastapi'
+        static_configs:
+          - targets: ['wiki-fastapi:{{ .Values.fastapi.service.port }}']
+        metrics_path: '/metrics'
+{{- end }}

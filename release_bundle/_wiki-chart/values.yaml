@@ -1,0 +1,112 @@
+# FastAPI app config
+fastapi:
+  image_name: tatosbeer/wiki:latest
+  imagePullPolicy: IfNotPresent
+  replicaCount: 1
+  containerPort: 8000
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+# PostgreSQL config - bitnami/postgresql
+postgresql:
+  enabled: true
+  image:
+    repository: bitnami/postgresql
+    tag: "latest"
+  auth:
+    # Align DB credentials with the FastAPI app (default 'postgres')
+    postgresPassword: "postgres"
+    user: postgres
+    database: nebula
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "250m"
+        memory: "256Mi"        
+  service:
+    type: ClusterIP
+    port: 5432
+
+# FastAPI DB connection
+# Note: PostgreSQL name will be <release-name>-postgresql
+database:
+  connectionString: "postgresql+asyncpg://{{ .Values.database.user }}:{{ .Values.database.password }}@{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.database }}"
+  host: nebula-postgres  # <release-name>-postgresql in template
+  port: 5432
+  user: postgres
+  password: postgres
+  database: nebula
+
+# Prometheus config
+prometheus:
+  enabled: true
+  image:
+    repository: prom/prometheus
+    tag: v2.48.0
+  service:
+    type: ClusterIP
+    port: 9090
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"      
+  storage:
+    size: 1Gi
+
+# Grafana config
+grafana:
+  enabled: true
+  image:
+    repository: grafana/grafana
+    tag: 10.2.0
+  adminUser: admin
+  adminPassword: admin
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  dashboard:
+    id: creation-dashboard-678
+    path: /d/creation-dashboard-678/creation
+
+# Ingress config
+ingress:
+  enabled: true
+  className: traefik  # k3d default
+  annotations: {}
+  hosts:
+    - host: localhost  # Use localhost for k3d, can be overridden
+      paths:
+        - path: /users
+          pathType: Prefix
+        - path: /posts
+          pathType: Prefix
+        - path: /metrics
+          pathType: Prefix
+        - path: /grafana
+          pathType: Prefix
+        - path: /
+          pathType: Prefix

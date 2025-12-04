@@ -1,0 +1,40 @@
+worker_processes  1;
+events { worker_connections 1024; }
+http {
+    server_tokens off;
+    sendfile on;
+    tcp_nopush on;
+
+    upstream fastapi_upstream {
+        server 127.0.0.1:8000;
+    }
+    upstream grafana_upstream {
+        server 127.0.0.1:3000;
+    }
+    upstream prometheus_upstream {
+        server 127.0.0.1:9090;
+    }
+
+    server {
+        listen 8080;
+
+        location /users {
+            proxy_pass http://fastapi_upstream;
+        }
+        location /posts {
+            proxy_pass http://fastapi_upstream;
+        }
+        location /metrics {
+            proxy_pass http://fastapi_upstream;
+        }
+        location / {
+            proxy_pass http://fastapi_upstream;
+        }
+        location /grafana/ {
+            proxy_pass http://grafana_upstream/;
+        }
+        location /prometheus/ {
+            proxy_pass http://prometheus_upstream/;
+        }
+    }
+}
