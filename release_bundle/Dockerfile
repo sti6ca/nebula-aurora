@@ -1,4 +1,4 @@
-FROM docker:24.0.5-dind
+FROM docker:dind
 
 ENV DEBIAN_FRONTEND=noninteractive
 
