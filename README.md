@@ -350,3 +350,90 @@ To uninstall the chart:
 ```bash
 helm uninstall wiki
 ```
+
+---
+
+# Docker-in-Docker Cluster Deployment
+
+For easier deployment and testing, the entire cluster (Kubernetes + Helm chart) can be containerized and run inside Docker using Docker-in-Docker (DinD) and k3d.
+
+## Quick Start
+
+### Option 1: Docker Compose (Recommended)
+
+```bash
+# Start the containerized cluster
+docker-compose -f docker-compose.cluster.yml up -d
+
+# Wait 60-90 seconds for initialization
+
+# Test the API
+curl http://localhost:8080/users
+
+# View logs
+docker-compose -f docker-compose.cluster.yml logs -f wiki-cluster
+```
+
+### Option 2: Docker Run
+
+```bash
+# Build the image
+docker build -f Dockerfile.cluster -t wiki-cluster:latest .
+
+# Run with --privileged
+docker run -d \
+  --name wiki-cluster \
+  --privileged \
+  -p 8080:8080 \
+  wiki-cluster:latest
+
+# Check status
+docker logs -f wiki-cluster
+```
+
+## Exposed Endpoints (via port 8080)
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /users` | List users |
+| `POST /users` | Create user |
+| `GET /user/{id}` | Get user by ID |
+| `GET /posts` | List posts |
+| `POST /posts` | Create post |
+| `GET /posts/{id}` | Get post by ID |
+| `GET /metrics` | Prometheus metrics |
+| `GET /grafana/...` | Grafana dashboard (admin/admin) |
+| `GET /prometheus` | Prometheus UI |
+
+## Container Management
+
+```bash
+# Check status
+docker-compose -f docker-compose.cluster.yml ps
+
+# Access kubectl inside container
+docker exec -it wiki-cluster kubectl get pods
+
+# View cluster info
+docker exec -it wiki-cluster helm list
+
+# Stop cluster
+docker-compose -f docker-compose.cluster.yml down
+```
+
+## How It Works
+
+1. **Docker-in-Docker (DinD)**: Runs Docker daemon inside container
+2. **k3d**: Lightweight Kubernetes cluster inside Docker
+3. **Helm**: Deploys wiki-chart with PostgreSQL, FastAPI, Prometheus, Grafana
+4. **Nginx Proxy**: Exposes all services on port 8080
+
+## Performance
+
+- **Memory**: 2-3GB RAM required
+- **Disk**: ~10GB for images and volumes
+- **Initialization Time**: 60-90 seconds
+
+For detailed documentation, see [DOCKER_IN_DOCKER_GUIDE.md](./DOCKER_IN_DOCKER_GUIDE.md).
+
+---
