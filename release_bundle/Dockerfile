@@ -27,12 +27,13 @@ WORKDIR /workspace
 # Copy the bundle pieces into the image
 COPY _wiki-service ./_wiki-service
 COPY _wiki-chart ./_wiki-chart
-COPY entrypoint.sh ./entrypoint.sh
-COPY nginx.conf.template ./nginx.conf.template
-COPY README.release.md ./README.release.md
 
+#Copy startup script
+COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x /workspace/entrypoint.sh
 
+# Expose 8080
 EXPOSE 8080
 
+#Start cluster
 ENTRYPOINT ["/workspace/entrypoint.sh"]

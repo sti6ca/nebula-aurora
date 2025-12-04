@@ -1,72 +1,106 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -e
 
-ROOT="/workspace"
-
-log() { echo "[entrypoint] $*"; }
-
-export PATH="/usr/local/bin:$PATH"
-
-# Start Docker daemon (dind)
-log "Starting dockerd..."
+echo "Starting Docker daemon..."
 dockerd-entrypoint.sh &
+DOCKER_PID=$!
 
-# Wait for docker to be ready
-for i in {1..60}; do
-  if docker info >/dev/null 2>&1; then
-    log "Docker is ready"
-    break
-  fi
-  sleep 1
+# Wait for Docker daemon to be ready
+echo "Waiting for Docker daemon to start..."
+timeout=60
+while ! docker info >/dev/null 2>&1; do
+    if [ $timeout -eq 0 ]; then
+        echo "ERROR: Docker daemon failed to start"
+        exit 1
+    fi
+    sleep 1
+    timeout=$((timeout - 1))
 done
+echo "✓ Docker daemon is ready"
+
+# Set DOCKER_HOST to use the local socket
+export DOCKER_HOST=unix:///var/run/docker.sock
+
+# Build the FastAPI Docker image
+echo "Building FastAPI Docker image..."
+cd /workspace/wiki-service
+docker build -t wiki-service:local .
+echo "✓ FastAPI image built successfully"
 
 # Create k3d cluster
-CLUSTER_NAME="nebula"
-if ! k3d cluster list | grep -q " ${CLUSTER_NAME} "; then
-  log "Creating k3d cluster '${CLUSTER_NAME}'"
-  k3d cluster create ${CLUSTER_NAME} --wait
-else
-  log "k3d cluster '${CLUSTER_NAME}' already exists"
-fi
+echo "Creating k3d cluster..."
+k3d cluster create wiki-cluster \
+    --port "8080:80@loadbalancer" \
+    --wait \
+    --timeout 300s
+echo "✓ k3d cluster created"
 
-# Build the FastAPI image inside DinD and load into k3d
-log "Building FastAPI image"
-docker build -t local/wiki:latest ${ROOT}/_wiki-service
-log "Loading image into k3d cluster"
-k3d image import local/wiki:latest --cluster ${CLUSTER_NAME} || k3d image import local/wiki:latest
+# Import the Docker image into k3d
+echo "Importing Docker image into k3d..."
+k3d image import wiki-service:local -c wiki-cluster
+echo "✓ Image imported into k3d"
 
-# Deploy helm chart
-RELEASE_NAME="wiki"
-log "Installing Helm chart"
-helm upgrade --install ${RELEASE_NAME} ${ROOT}/_wiki-chart --wait --timeout 5m --set fastapi.image_name=local/wiki:latest
+# Set kubeconfig
+export KUBECONFIG=$(k3d kubeconfig write wiki-cluster)
 
-# Start kubectl port-forwards to container-local ports
-log "Starting port-forwards"
-kubectl port-forward svc/${RELEASE_NAME}-fastapi 8000:8000 >/tmp/port-forward-fastapi.log 2>&1 &
-PF_FASTAPI_PID=$!
-kubectl port-forward svc/${RELEASE_NAME}-grafana 3000:3000 >/tmp/port-forward-grafana.log 2>&1 &
-PF_GRAFANA_PID=$!
-kubectl port-forward svc/${RELEASE_NAME}-prometheus 9090:9090 >/tmp/port-forward-prom.log 2>&1 &
-PF_PROM_PID=$!
+# Remove any taints that might prevent scheduling (common in k3d)
+echo "Removing node taints..."
+kubectl taint nodes --all node.kubernetes.io/disk-pressure- 2>/dev/null || true
+kubectl taint nodes --all node.kubernetes.io/memory-pressure- 2>/dev/null || true
+kubectl taint nodes --all node.kubernetes.io/network-unavailable- 2>/dev/null || true
 
-log "Waiting for services to be reachable on localhost"
-for i in {1..60}; do
-  if curl -sSf http://127.0.0.1:8000/ >/dev/null 2>&1; then
-    log "FastAPI is reachable"
-    break
-  fi
-  sleep 2
+# k3d comes with Traefik built-in, so we don't need to install anything
+# Just wait for Traefik to be ready
+echo "Waiting for Traefik (built-in with k3d) to be ready..."
+kubectl wait --namespace kube-system \
+    --for=condition=ready pod \
+    --selector=app.kubernetes.io/name=traefik \
+    --timeout=120s || echo "Warning: Traefik may not be fully ready"
+
+echo "✓ Traefik ingress controller ready"
+
+# Deploy the Helm chart
+echo "Deploying Helm chart..."
+cd /workspace/wiki-chart
+helm install wiki . --set fastapi.image_name=wiki-service:local || \
+    helm upgrade wiki . --set fastapi.image_name=wiki-service:local
+echo "✓ Helm chart deployed"
+
+# Wait for pods to be ready (with retries)
+echo "Waiting for pods to be ready..."
+for i in {1..30}; do
+    READY=$(kubectl get pods --no-headers 2>/dev/null | grep -v Running | grep -v Completed | wc -l || echo "1")
+    if [ "$READY" -eq "0" ]; then
+        echo "✓ All pods are ready"
+        break
+    fi
+    echo "  Waiting for pods... ($i/30)"
+    sleep 10
 done
 
-# Render nginx config and start nginx to expose all endpoints through port 8080
-NGINX_CONF_PATH=/etc/nginx/nginx.conf
-log "Writing nginx config to ${NGINX_CONF_PATH}"
-cat ${ROOT}/nginx.conf.template > ${NGINX_CONF_PATH}
+# Show pod status
+echo ""
+echo "Pod status:"
+kubectl get pods
 
-log "Starting nginx"
-nginx -g 'daemon off;'
+# Show services
+echo ""
+echo "Services:"
+kubectl get svc
 
-# On exit, cleanup background processes
-trap 'log "Shutting down..."; kill ${PF_FASTAPI_PID} ${PF_GRAFANA_PID} ${PF_PROM_PID} || true; k3d cluster delete ${CLUSTER_NAME} || true; exit' SIGINT SIGTERM
+# Show ingress
+echo ""
+echo "Ingress:"
+kubectl get ingress
 
-wait
+echo ""
+echo "=========================================="
+echo "Cluster is ready! Access the API at:"
+echo "  http://localhost:8080/"
+echo "  http://localhost:8080/users"
+echo "  http://localhost:8080/posts"
+echo "  http://localhost:8080/grafana/d/creation-dashboard-678/creation"
+echo "=========================================="
+
+# Keep container running
+tail -f /dev/null
