@@ -14,7 +14,7 @@ data:
         uid: prometheus
         type: prometheus
         access: proxy
-        url: http://{{ include "wiki-chart.fullname" . }}-prometheus:{{ .Values.prometheus.service.port }}
+        url: http://wiki-prometheus:{{ .Values.prometheus.service.port }}
         isDefault: true
         editable: true
 {{- end }}

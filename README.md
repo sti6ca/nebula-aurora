@@ -233,23 +233,24 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8080 --reload
 
 ## Running application as docker container
 
+1. **Build container image**
 ```bash
 cd wiki-service && docker build -t fastapi:local .
 ```
 
-**create a network**
+2. **Create a network**
 
 ```bash
 docker network create nebula-net
 ```
 
-**start postgres on that network**
+3. **Start postgres on that network**
 
 ```bash
 docker run -d --name nebula-postgres --network nebula-net -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=nebula -e DATABASE_URL="postgresql+asyncpg://postgres:postgres@nebula:5432/nebula" postgres:15.5
 ```
 
-**run your fastapi container on same network**
+5. **run your fastapi container on same network**
 
 ```bash
 docker run -it --rm --name wiki --network nebula-net -e DATABASE_URL="postgresql+asyncpg://postgres:postgres@nebula-postgres:5432/nebula" -p 8000:8000 fastapi:local
@@ -257,21 +258,25 @@ docker run -it --rm --name wiki --network nebula-net -e DATABASE_URL="postgresql
 
 ## Helm steps
 
+1. **Add repo for postgreSQL
+
 ```bash
 helm repo add my-repo https://charts.bitnami.com/bitnami
 ```
+
+2. **Install chart**
 
 ```bash
 helm install postgresql-15.5.0 my-repo/postgresql
 ```
 
-**To get the password for "postgres" run:**
+3. **To get the password for "postgres" run:**
 
 ```bash
 export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql-15-5-0 -o jsonpath="{.data.postgres-password}" | base64 -d)
 ```
 
-**To connect to your database run the following command:**
+4. **To connect to your database run the following command:**
 
 ```bash
 kubectl run postgresql-15-5-0-client --rm --tty -i --restart='Never' --namespace default --image registry-1.docker.io/bitnami/postgresql:latest --env="PGPASSWORD=$POSTGRES_PASSWORD" \
@@ -286,26 +291,62 @@ kubectl port-forward --namespace default svc/postgresql-15-5-0 5432:5432 &     P
 
 
 
-## K8s steps
+## K8s Testing
 
+1. **Check fastpi pod's logs**
 ```bash
-kubectl get configmaps -o custom-columns=NAME:.metadata.name,LABELS:.metadata.labels --no-headers | grep grafana-dashboards
+kubectl logs pod/wiki-fastapi-<pod-id>
+# Outputs below are good:
+INFO:     10.1.0.1:49676 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.1:49692 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.1:33842 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.1:33852 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.1:33856 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.193:47302 - "GET /metrics HTTP/1.1" 200 OK
+INFO:     10.1.0.1:57238 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.1:57246 - "GET / HTTP/1.1" 200 OK
+INFO:     10.1.0.1:57252 - "GET / HTTP/1.1" 200 OK
 ```
 
-```bash
-kubectl get configmap hello-grafana-dashboards -o yaml
-```
+2. **Port forward fastapi service**
 
 ```bash
-kubectl get pods -l app.kubernetes.io/name=grafana -o yaml
+kubectl port-forward svc/wiki-fastapi 8000:8000 > /tmp/wiki-pf.log 2>&1 & echo $! > /tmp/wiki-pf.pid
 ```
+
+3. **Test the API**
 
 ```bash
-kubectl get pod hello-grafana-6cd4b4b6bb-q7vnd -o jsonpath='{.spec.containers[*].name}{"\n"}'
+sed 's|BASE_URL="http://localhost:8080"|BASE_URL="http://127.0.0.1:8000"|' wiki-service/test_api.sh | bash
 ```
 
-```yaml
+Once the server is running, visit:
 
-name: grafana-sc-dashboard
-name: grafana-sc-datasources
+- Swagger UI: [`http://localhost:8000/docs`](http://localhost:8000/docs)
+- ReDoc: [`http://localhost:8000/redoc`](http://localhost:8000/redoc)
+
+4. **Access Grafana**
+   
+```bash
+   kubectl port-forward svc/wiki-grafana 3000:3000
+```
+
+Then open: [`http://localhost:3000/grafana/d/creation-dashboard-678/creation`](http://localhost:3000/grafana/d/creation-dashboard-678/creation)
+
+Login: admin / admin
+
+5. Access Prometheus:
+   ```bash
+   kubectl port-forward svc/wiki-prometheus 9090:9090
+   ```
+
+Then open: [`http://localhost:9090`](http://localhost:9090)
+
+
+## Uninstallation
+
+To uninstall the chart:
+
+```bash
+helm uninstall wiki
 ```
