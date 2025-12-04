@@ -13,7 +13,7 @@ RUN apk add --no-cache \
     python \
     python3 \
     py3-pip \
-    git \
+    git
 
 # Install Helm
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
