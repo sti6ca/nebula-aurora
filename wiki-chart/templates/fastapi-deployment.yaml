@@ -25,12 +25,14 @@ spec:
         - name: http
           containerPort: {{ .Values.fastapi.containerPort }} # 8000
           protocol: TCP
+        # Use the generated secret for the database URL (keeps credentials out of plain manifests)
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: wiki-db-secret
               key: database-url
+        # Optional individual secrets if your app reads separate env vars
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -52,11 +54,11 @@ spec:
           httpGet:
             path: /
             port: http
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /
             port: http
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           periodSeconds: 5

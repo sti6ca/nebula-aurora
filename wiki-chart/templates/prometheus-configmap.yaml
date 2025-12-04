@@ -16,6 +16,6 @@ data:
     scrape_configs:
       - job_name: 'fastapi'
         static_configs:
-          - targets: ['{{ include "wiki-chart.fullname" . }}-fastapi:{{ .Values.fastapi.service.port }}']
+          - targets: ['wiki-fastapi:{{ .Values.fastapi.service.port }}']
         metrics_path: '/metrics'
 {{- end }}
