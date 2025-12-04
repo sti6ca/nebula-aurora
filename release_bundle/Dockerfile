@@ -8,7 +8,7 @@ RUN apk add --no-cache \
     bash \
     kubectl \
     ca-certificates \
-    python3
+    python3 \
     py3-pip \
     nginx-openrc \
     openrc \
