@@ -28,9 +28,6 @@ WORKDIR /workspace
 COPY wiki-service ./wiki-service
 COPY wiki-chart ./wiki-chart
 
-# Copy wiki-service for reference (optional)
-COPY wiki-service /opt/wiki-service
-
 # Copy entrypoint script
 COPY entrypoint-cluster.sh /entrypoint-cluster.sh
 RUN chmod +x /entrypoint-cluster.sh
