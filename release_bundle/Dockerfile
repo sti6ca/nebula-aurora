@@ -20,7 +20,6 @@ RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | b
 
 # install k3d (install script)
 RUN curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 # ensure /workspace will contain the bundle
 WORKDIR /workspace
