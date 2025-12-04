@@ -1,0 +1,43 @@
+# Docker-in-Docker with k3d cluster orchestration
+# Runs a complete k3d Kubernetes cluster with the wiki-chart deployed
+# Exposes FastAPI, Prometheus, and Grafana on port 8080
+
+FROM docker:dind
+
+# Install required tools
+RUN apk add --no-cache \
+    bash \
+    curl \
+    wget \
+    kubectl \
+    python \
+    python3 \
+    py3-pip \
+    git \
+    && rm -rf /var/cache/apk/*
+
+# Install Helm
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Install k3d
+RUN curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+# Set workdir
+WORKDIR /workspace
+
+# Copy wiki-service and wiki- chart
+COPY wiki-service ./wiki-service
+COPY wiki-chart ./wiki-chart
+
+# Copy wiki-service for reference (optional)
+COPY wiki-service /opt/wiki-service
+
+# Copy entrypoint script
+COPY entrypoint-cluster.sh /entrypoint-cluster.sh
+RUN chmod +x /entrypoint-cluster.sh
+
+# Expose API, Prometheus, and Grafana on port 8080
+EXPOSE 8080
+
+# Run Docker daemon and start cluster
+ENTRYPOINT ["/entrypoint-cluster.sh"]
